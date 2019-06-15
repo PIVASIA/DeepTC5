@@ -22,7 +22,6 @@ import sys
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-%matplotlib inline
 
 # Allow relative imports when being executed as script.
 if __name__ == "__main__" and __package__ is None:
