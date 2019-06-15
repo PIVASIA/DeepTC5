@@ -19,7 +19,10 @@ limitations under the License.
 import argparse
 import os
 import sys
-import cv2
+
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+%matplotlib inline
 
 # Allow relative imports when being executed as script.
 if __name__ == "__main__" and __package__ is None:
@@ -151,6 +154,7 @@ def parse_args(args):
     csv_parser.add_argument('annotations', help='Path to CSV file containing annotations for evaluation.')
     csv_parser.add_argument('classes',     help='Path to a CSV file containing class label mapping.')
 
+    parser.add_argument('--num_images', help='Number of images to be shown.', type=int, default=12)
     parser.add_argument('-l', '--loop', help='Loop forever, even if the dataset is exhausted.', action='store_true')
     parser.add_argument('--no-resize', help='Disable image resizing.', dest='resize', action='store_false')
     parser.add_argument('--anchors', help='Show positive anchors on the image.', action='store_true')
@@ -170,8 +174,11 @@ def run(generator, args, anchor_params):
         generator: The generator to debug.
         args: parseargs args object.
     """
-    # display images, one at a time
-    for i in range(generator.size()):
+    # display some images
+    plt.figure(figsize=(20,10))
+    columns = 4
+    num_images = args.num_images if args.num_images < generator.size() else generator.size()
+    for i in range(num_images):
         # load the data
         image       = generator.load_image(i)
         annotations = generator.load_annotations(i)
@@ -201,9 +208,8 @@ def run(generator, args, anchor_params):
                 # result is that annotations without anchors are red, with anchors are green
                 draw_boxes(image, annotations['bboxes'][max_indices[positive_indices], :], (0, 255, 0))
 
-        cv2.imshow('Image', image)
-        if cv2.waitKey() == ord('q'):
-            return False
+        plt.subplot(num_images / columns + 1, columns, i + 1)
+        plt.imshow(image)
     return True
 
 
@@ -227,9 +233,6 @@ def main(args=None):
     anchor_params = None
     if args.config and 'anchor_parameters' in args.config:
         anchor_params = parse_anchor_parameters(args.config)
-
-    # create the display window
-    cv2.namedWindow('Image', cv2.WINDOW_NORMAL)
 
     if args.loop:
         while run(generator, args, anchor_params=anchor_params):
