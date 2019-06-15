@@ -209,7 +209,7 @@ def run(generator, args, anchor_params):
 
         plt.subplot(num_images // columns + 1, columns, i + 1)
         plt.imshow(image)
-    plt.show()
+    plt.imsave("debug.png")
     return True
 
 
