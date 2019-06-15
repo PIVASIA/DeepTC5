@@ -72,6 +72,7 @@ def _read_annotations(csv_reader, classes):
         except ValueError:
             raise_from(ValueError('line {}: format should be \'img_file,x1,y1,x2,y2,class_name\' or \'img_file,,,,,\''.format(line)), None)
 
+        img_file = str(Path(img_file))
         if img_file not in result:
             result[img_file] = []
 
@@ -192,7 +193,7 @@ class CSVGenerator(Generator):
     def image_path(self, image_index):
         """ Returns the image path for image_index.
         """
-        return Path(os.path.join(self.base_dir, self.image_names[image_index]))
+        return os.path.join(self.base_dir, self.image_names[image_index])
 
     def image_aspect_ratio(self, image_index):
         """ Compute the aspect ratio for an image with image_index.
