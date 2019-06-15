@@ -174,7 +174,7 @@ def run(generator, args, anchor_params):
         args: parseargs args object.
     """
     # display some images
-    plt.figure(figsize=(20,10))
+    plt.figure(figsize=(20, 10))
     columns = 4
     num_images = args.num_images if args.num_images < generator.size() else generator.size()
     for i in range(num_images):
@@ -207,8 +207,9 @@ def run(generator, args, anchor_params):
                 # result is that annotations without anchors are red, with anchors are green
                 draw_boxes(image, annotations['bboxes'][max_indices[positive_indices], :], (0, 255, 0))
 
-        plt.subplot(num_images / columns + 1, columns, i + 1)
+        plt.subplot(num_images // columns + 1, columns, i + 1)
         plt.imshow(image)
+    plt.show()
     return True
 
 
