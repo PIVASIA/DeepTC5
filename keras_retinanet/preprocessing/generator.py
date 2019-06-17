@@ -227,7 +227,7 @@ class Generator(keras.utils.Sequence):
         if isinstance(image, list):
             for i in range(len(image)):
                 image[i] = self.preprocess_image(image[i])
-                image[i], image_scale = self.resize(image[i])
+                image[i], image_scale = self.resize_image(image[i])
                 image[i] = keras.backend.cast_to_floatx(image[i])
         else:
             # preprocess the image
