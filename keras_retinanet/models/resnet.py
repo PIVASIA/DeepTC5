@@ -82,7 +82,7 @@ class ResNetBackbone(Backbone):
         return preprocess_image(inputs, mode='caffe')
 
 
-def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=None, **kwargs):
+def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=None,  weights=weights, skip_mismatch=True, **kwargs):
     """ Constructs a retinanet model using a resnet backbone.
 
     Args
@@ -115,10 +115,13 @@ def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=Non
     if modifier:
         resnet = modifier(resnet)
 
+    if weights is not None:
+        resnet.load_weights(weights, by_name=True, skip_mismatch=skip_mismatch)
+
     # create the full model
     return retinanet.retinanet(inputs=inputs, num_classes=num_classes, backbone_layers=resnet.outputs[1:], **kwargs)
 
-def dualresnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=None, **kwargs):
+def dualresnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=None,  weights=weights, skip_mismatch=True, **kwargs):
     """ Constructs a retinanet model using a resnet backbone.
 
     Args
@@ -155,6 +158,17 @@ def dualresnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier
     if modifier:
         resnet_a = modifier(resnet_a)
         resnet_b = modifier(resnet_b)
+
+    # load pre-trained weights if defined
+    if weights is not None:
+        resnet_a.load_weights(weights, by_name=True, skip_mismatch=skip_mismatch)
+        resnet_b.load_weights(weights, by_name=True, skip_mismatch=skip_mismatch)
+
+    # rename layer name of each resnet stream
+    for layer in resnet_a.layers:
+        layer.name = layer.name + "_a"
+    for layer in resnet_b.layers:
+        layer.name = layer.name + "_b"
 
     # create the full model
     return retinanet.dualstream_retinanet(inputs_a=inputs_a, inputs_b=inputs_b, 
