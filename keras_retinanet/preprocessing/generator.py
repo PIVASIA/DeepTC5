@@ -224,17 +224,21 @@ class Generator(keras.utils.Sequence):
     def preprocess_group_entry(self, image, annotations):
         """ Preprocess image and its annotations.
         """
-        # preprocess the image
-        image = self.preprocess_image(image)
-
-        # resize image
-        image, image_scale = self.resize_image(image)
+        if isinstance(image, list):
+            for i in range(len(image)):
+                image[i] = self.preprocess_image(image[i])
+                image[i], image_scale = self.resize(image[i])
+                image[i] = keras.backend.cast_to_floatx(image[i])
+        else:
+            # preprocess the image
+            image = self.preprocess_image(image)
+            # resize image
+            image, image_scale = self.resize_image(image)
+            # convert to the wanted keras floatx
+            image = keras.backend.cast_to_floatx(image)
 
         # apply resizing to annotations too
         annotations['bboxes'] *= image_scale
-
-        # convert to the wanted keras floatx
-        image = keras.backend.cast_to_floatx(image)
 
         return image, annotations
 
