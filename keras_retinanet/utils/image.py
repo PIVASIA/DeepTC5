@@ -68,6 +68,9 @@ def adjust_transform_for_image(transform, image, relative_translation):
     The translation of the matrix will be scaled with the size of the image.
     The linear part of the transformation will adjusted so that the origin of the transformation will be at the center of the image.
     """
+    if isinstance(image, list):
+        image = image[0]
+    
     height, width, channels = image.shape
 
     result = transform
