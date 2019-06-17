@@ -273,6 +273,8 @@ def create_generators(args, preprocess_image):
         train_generator = CSVGenerator(
             args.annotations,
             args.classes,
+            input_dir_1=args.input_dir_1,
+            input_dir_2=args.input_dir_2,
             transform_generator=transform_generator,
             **common_args
         )
@@ -393,6 +395,8 @@ def parse_args(args):
     group.add_argument('--weights',           help='Initialize the model with weights from a file.')
     group.add_argument('--no-weights',        help='Don\'t initialize the model with any weights.', dest='imagenet_weights', action='store_const', const=False)
 
+    parser.add_argument('--input-dir-1',      help='To be added', type=str, default=None)
+    parser.add_argument('--input-dir-2',      help='To be added', type=str, default=None)
     parser.add_argument('--backbone',         help='Backbone model used by retinanet.', default='resnet50', type=str)
     parser.add_argument('--batch-size',       help='Size of the batches.', default=1, type=int)
     parser.add_argument('--gpu',              help='Id of the GPU to use (as reported by nvidia-smi).')
@@ -457,12 +461,17 @@ def main(args=None):
         weights = args.weights
         # default to imagenet if nothing else is specified
         if weights is None and args.imagenet_weights:
-            print("Downloading imagenet weights...")
             weights = backbone.download_imagenet()
 
         print('Creating model, this may take a second...')
+
+        if args.input_dir_1 is not None and args.input_dir_2 is not None:
+            backbone_retinanet = backbone.dualstream_retinanet
+        else:
+            backbone_retinanet = backbone.retinanet
+        
         model, training_model, prediction_model = create_models(
-            backbone_retinanet=backbone.retinanet,
+            backbone_retinanet=backbone_retinanet,
             num_classes=train_generator.num_classes(),
             weights=weights,
             multi_gpu=args.multi_gpu,

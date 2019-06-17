@@ -121,6 +121,8 @@ class CSVGenerator(Generator):
         csv_data_file,
         csv_class_file,
         base_dir=None,
+        input_dir_1=None,
+        input_dir_2=None,
         **kwargs
     ):
         """ Initialize a CSV data generator.
@@ -133,6 +135,8 @@ class CSVGenerator(Generator):
         self.image_names = []
         self.image_data  = {}
         self.base_dir    = base_dir
+        self.input_dir_1 = input_dir_1
+        self.input_dir_2 = input_dir_2
 
         # Take base_dir from annotations file if not explicitly specified.
         if self.base_dir is None:
@@ -189,22 +193,29 @@ class CSVGenerator(Generator):
         """
         return self.labels[label]
 
-    def image_path(self, image_index):
+    def image_path(self, image_index, prefix=""):
         """ Returns the image path for image_index.
         """
         filename = self.image_names[image_index]
-        return os.path.join(self.base_dir, *filename.split('\\')) #fix problem of path spashes between Windows and Unix
+        return os.path.join(self.base_dir, prefix, *filename.split('\\')) #fix problem of path spashes between Windows and Unix
 
     def image_aspect_ratio(self, image_index):
         """ Compute the aspect ratio for an image with image_index.
         """
         # PIL is fast for metadata
-        image = Image.open(self.image_path(image_index))
+        if self.input_dir_1 is not None:
+            image = Image.open(self.image_path(image_index, self.input_dir_1))
+        else:
+            image = Image.open(self.image_path(image_index))
+
         return float(image.width) / float(image.height)
 
     def load_image(self, image_index):
         """ Load an image at the image_index.
         """
+        if self.input_dir_1 is not None and self.input_dir_2 is not None:
+            return [read_image_bgr(self.image_path(image_index, prefix=self.input_dir_1)), read_image_bgr(self.image_path(image_index, prefix=self.input_dir_2))]
+        
         return read_image_bgr(self.image_path(image_index))
 
     def load_annotations(self, image_index):

@@ -39,6 +39,12 @@ class DenseNetBackbone(Backbone):
         """
         return densenet_retinanet(*args, backbone=self.backbone, **kwargs)
 
+    def dualstream_retinanet(self, *args, **kwargs):
+        """ Returns a retinanet model using the correct backbone.
+        """
+        print("Dual-streams DenseNet is not supported! Using densenet_retinanet insteads!")
+        return densenet_retinanet(*args, backbone=self.backbone, **kwargs)
+
     def download_imagenet(self):
         """ Download pre-trained weights for the specified backbone name.
         This name is in the format {backbone}_weights_tf_dim_ordering_tf_kernels_notop
@@ -46,6 +52,8 @@ class DenseNetBackbone(Backbone):
         For more info check the explanation from the keras densenet script itself:
             https://github.com/keras-team/keras/blob/master/keras/applications/densenet.py
         """
+        print("Downloading ImageNet weights for DenseNet...")
+
         origin    = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.8/'
         file_name = '{}_weights_tf_dim_ordering_tf_kernels_notop.h5'
 

@@ -29,6 +29,11 @@ class Backbone(object):
         """
         raise NotImplementedError('retinanet method not implemented.')
 
+    def dualstream_retinanet(self, *args, **kwargs):
+        """ Returns a retinanet model using two backbone network.
+        """
+        raise NotImplementedError('twostream_retinanet method not implemented.')        
+
     def download_imagenet(self):
         """ Downloads ImageNet weights and returns path to weights file.
         """

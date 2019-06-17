@@ -34,13 +34,18 @@ class MobileNetBackbone(Backbone):
         """
         return mobilenet_retinanet(*args, backbone=self.backbone, **kwargs)
 
+    def dualstream_retinanet(self, *args, **kwargs):
+        """ Returns a retinanet model using the correct backbone.
+        """
+        return dualmobilenet_retinanet(*args, backbone=self.backbone, **kwargs)
+
     def download_imagenet(self):
         """ Download pre-trained weights for the specified backbone name.
         This name is in the format mobilenet{rows}_{alpha} where rows is the
         imagenet shape dimension and 'alpha' controls the width of the network.
         For more info check the explanation from the keras mobilenet script itself.
         """
-
+        print("Downloading ImageNet weights for MobileNet...")
         alpha = float(self.backbone.split('_')[1])
         rows = int(self.backbone.split('_')[0].replace('mobilenet', ''))
 
@@ -107,3 +112,39 @@ def mobilenet_retinanet(num_classes, backbone='mobilenet224_1.0', inputs=None, m
         backbone = modifier(backbone)
 
     return retinanet.retinanet(inputs=inputs, num_classes=num_classes, backbone_layers=backbone.outputs, **kwargs)
+
+
+def dualmobilenet_retinanet(num_classes, backbone='mobilenet224_1.0', inputs=None, modifier=None, **kwargs):
+    """ Constructs a retinanet model using a mobilenet backbone.
+
+    Args
+        num_classes: Number of classes to predict.
+        backbone: Which backbone to use (one of ('mobilenet128', 'mobilenet160', 'mobilenet192', 'mobilenet224')).
+        inputs: The inputs to the network (defaults to a Tensor of shape (None, None, 3)).
+        modifier: A function handler which can modify the backbone before using it in retinanet (this can be used to freeze backbone layers for example).
+
+    Returns
+        RetinaNet model with a MobileNet backbone.
+    """
+    alpha = float(backbone.split('_')[1])
+
+    # choose default input
+    if inputs is None:
+        inputs = keras.layers.Input((None, None, 3))
+
+    backbone = mobilenet.MobileNet(input_tensor=inputs, alpha=alpha, include_top=False, pooling=None, weights=None)
+
+    # create the full model
+    layer_names = ['conv_pw_5_relu', 'conv_pw_11_relu', 'conv_pw_13_relu']
+    layer_outputs = [backbone.get_layer(name).output for name in layer_names]
+    backbone = keras.models.Model(inputs=inputs, outputs=layer_outputs, name=backbone.name)
+
+    # invoke modifier if given
+    if modifier:
+        backbone = modifier(backbone)
+
+    return retinanet.dualstream_retinanet(inputs_a=inputs, inputs_b=copy.deepcopy(inputs), 
+                                        num_classes=num_classes, 
+                                        backbone_layers_a=resnet.outputs[1:], 
+                                        backbone_layers_b=copy.deepcopy(resnet).outputs[1:], 
+                                        **kwargs)
