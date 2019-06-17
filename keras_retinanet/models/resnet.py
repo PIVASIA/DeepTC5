@@ -161,7 +161,6 @@ def dualresnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier
 def resnet50_retinanet(num_classes, inputs=None, **kwargs):
     return resnet_retinanet(num_classes=num_classes, backbone='resnet50', inputs=inputs, **kwargs)
 
-
 def resnet101_retinanet(num_classes, inputs=None, **kwargs):
     return resnet_retinanet(num_classes=num_classes, backbone='resnet101', inputs=inputs, **kwargs)
 
