@@ -128,17 +128,17 @@ def __aggregate_features(features_a, features_b, feature_size=256):
     P3_b, P4_b, P5_b, P6_b, P7_b = features_b
 
     if keras.backend.image_data_format() == 'channels_first':
-        P3 = keras.layers.Concatenate([P3_a, P3_b], name="P3_merge", axis=1)
-        P4 = keras.layers.Concatenate([P4_a, P4_b], name="P4_merge", axis=1)
-        P5 = keras.layers.Concatenate([P5_a, P5_b], name="P5_merge", axis=1)
-        P6 = keras.layers.Concatenate([P6_a, P6_b], name="P6_merge", axis=1)
-        P7 = keras.layers.Concatenate([P7_a, P7_b], name="P7_merge", axis=1)
+        P3 = keras.layers.Concatenate(name="P3_merge", axis=1)([P3_a, P3_b])
+        P4 = keras.layers.Concatenate(name="P4_merge", axis=1)([P4_a, P4_b])
+        P5 = keras.layers.Concatenate(name="P5_merge", axis=1)([P5_a, P5_b])
+        P6 = keras.layers.Concatenate(name="P6_merge", axis=1)([P6_a, P6_b])
+        P7 = keras.layers.Concatenate(name="P7_merge", axis=1)([P7_a, P7_b])
     else:
-        P3 = keras.layers.Concatenate([P3_a, P3_b], name="P3_merge", axis=3)
-        P4 = keras.layers.Concatenate([P4_a, P4_b], name="P4_merge", axis=3)
-        P5 = keras.layers.Concatenate([P5_a, P5_b], name="P5_merge", axis=3)
-        P6 = keras.layers.Concatenate([P6_a, P6_b], name="P6_merge", axis=3)
-        P7 = keras.layers.Concatenate([P7_a, P7_b], name="P7_merge", axis=3)
+        P3 = keras.layers.Concatenate(name="P3_merge", axis=3)([P3_a, P3_b])
+        P4 = keras.layers.Concatenate(name="P4_merge", axis=3)([P4_a, P4_b])
+        P5 = keras.layers.Concatenate(name="P5_merge", axis=3)([P5_a, P5_b])
+        P6 = keras.layers.Concatenate(name="P6_merge", axis=3)([P6_a, P6_b])
+        P7 = keras.layers.Concatenate(name="P7_merge", axis=3)([P7_a, P7_b])
 
     P3 = keras.layers.Conv2D(feature_size, kernel_size=1, strides=1, padding='same', name="P3")(P3)
     P4 = keras.layers.Conv2D(feature_size, kernel_size=1, strides=1, padding='same', name="P4")(P4)
