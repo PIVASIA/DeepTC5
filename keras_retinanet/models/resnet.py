@@ -131,31 +131,36 @@ def dualresnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier
         RetinaNet model with a ResNet backbone.
     """
     # choose default input
-    if inputs is None:
-        if keras.backend.image_data_format() == 'channels_first':
-            inputs = keras.layers.Input(shape=(3, None, None))
-        else:
-            inputs = keras.layers.Input(shape=(None, None, 3))
+    if keras.backend.image_data_format() == 'channels_first':
+        inputs_a = keras.layers.Input(shape=(3, None, None))
+        inputs_b = keras.layers.Input(shape=(3, None, None))
+    else:
+        inputs_a = keras.layers.Input(shape=(None, None, 3))
+        inputs_b = keras.layers.Input(shape=(None, None, 3))
 
     # create the resnet backbone
     if backbone == 'resnet50':
-        resnet = keras_resnet.models.ResNet50(inputs, include_top=False, freeze_bn=True)
+        resnet_a = keras_resnet.models.ResNet50(inputs, include_top=False, freeze_bn=True)
+        resnet_b = keras_resnet.models.ResNet50(inputs, include_top=False, freeze_bn=True)
     elif backbone == 'resnet101':
-        resnet = keras_resnet.models.ResNet101(inputs, include_top=False, freeze_bn=True)
+        resnet_a = keras_resnet.models.ResNet101(inputs, include_top=False, freeze_bn=True)
+        resnet_b = keras_resnet.models.ResNet101(inputs, include_top=False, freeze_bn=True)
     elif backbone == 'resnet152':
-        resnet = keras_resnet.models.ResNet152(inputs, include_top=False, freeze_bn=True)
+        resnet_a = keras_resnet.models.ResNet152(inputs, include_top=False, freeze_bn=True)
+        resnet_b = keras_resnet.models.ResNet152(inputs, include_top=False, freeze_bn=True)
     else:
         raise ValueError('Backbone (\'{}\') is invalid.'.format(backbone))
 
     # invoke modifier if given
     if modifier:
-        resnet = modifier(resnet)
+        resnet_a = modifier(resnet_a)
+        resnet_b = modifier(resnet_b)
 
     # create the full model
-    return retinanet.dualstream_retinanet(inputs_a=inputs, inputs_b=copy.deepcopy(inputs), 
+    return retinanet.dualstream_retinanet(inputs_a=inputs_a, inputs_b=inputs_b, 
                                         num_classes=num_classes, 
-                                        backbone_layers_a=resnet.outputs[1:], 
-                                        backbone_layers_b=copy.deepcopy(resnet).outputs[1:], 
+                                        backbone_layers_a=resnet_a.outputs[1:], 
+                                        backbone_layers_b=resnet_b.outputs[1:], 
                                         **kwargs)
 
 def resnet50_retinanet(num_classes, inputs=None, **kwargs):
