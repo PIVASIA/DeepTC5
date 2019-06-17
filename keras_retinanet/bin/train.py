@@ -194,6 +194,8 @@ def create_callbacks(model, training_model, prediction_model, validation_generat
         checkpoint = RedirectModel(checkpoint, model)
         callbacks.append(checkpoint)
 
+    callbacks.append(keras.callbacks.EarlyStopping(monitor='val_mAP', patience=args.early_stop, mode='auto'))
+
     callbacks.append(keras.callbacks.ReduceLROnPlateau(
         monitor    = 'loss',
         factor     = 0.1,
@@ -406,6 +408,7 @@ def parse_args(args):
     parser.add_argument('--multi-gpu-force',  help='Extra flag needed to enable (experimental) multi-gpu support.', action='store_true')
     parser.add_argument('--epochs',           help='Number of epochs to train.', type=int, default=50)
     parser.add_argument('--steps',            help='Number of steps per epoch.', type=int, default=10000)
+    parser.add_argument('--early-stop',       help='Number of epochs with no improvement after which training will be stopped.', default=10, type=int)
     parser.add_argument('--lr',               help='Learning rate.', type=float, default=1e-5)
     parser.add_argument('--snapshot-path',    help='Path to store snapshots of models during training (defaults to \'./snapshots\')', default='./snapshots')
     parser.add_argument('--tensorboard-dir',  help='Log directory for Tensorboard output', default='./logs')

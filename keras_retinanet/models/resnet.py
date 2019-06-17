@@ -140,14 +140,14 @@ def dualresnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier
 
     # create the resnet backbone
     if backbone == 'resnet50':
-        resnet_a = keras_resnet.models.ResNet50(inputs, include_top=False, freeze_bn=True)
-        resnet_b = keras_resnet.models.ResNet50(inputs, include_top=False, freeze_bn=True)
+        resnet_a = keras_resnet.models.ResNet50(inputs_a, include_top=False, freeze_bn=True)
+        resnet_b = keras_resnet.models.ResNet50(inputs_b, include_top=False, freeze_bn=True)
     elif backbone == 'resnet101':
-        resnet_a = keras_resnet.models.ResNet101(inputs, include_top=False, freeze_bn=True)
-        resnet_b = keras_resnet.models.ResNet101(inputs, include_top=False, freeze_bn=True)
+        resnet_a = keras_resnet.models.ResNet101(inputs_a, include_top=False, freeze_bn=True)
+        resnet_b = keras_resnet.models.ResNet101(inputs_b, include_top=False, freeze_bn=True)
     elif backbone == 'resnet152':
-        resnet_a = keras_resnet.models.ResNet152(inputs, include_top=False, freeze_bn=True)
-        resnet_b = keras_resnet.models.ResNet152(inputs, include_top=False, freeze_bn=True)
+        resnet_a = keras_resnet.models.ResNet152(inputs_a, include_top=False, freeze_bn=True)
+        resnet_b = keras_resnet.models.ResNet152(inputs_b, include_top=False, freeze_bn=True)
     else:
         raise ValueError('Backbone (\'{}\') is invalid.'.format(backbone))
 
