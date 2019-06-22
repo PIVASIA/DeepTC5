@@ -183,10 +183,10 @@ def create_callbacks(model, training_model, prediction_model, validation_generat
                 '{backbone}_{dataset_type}_{{epoch:02d}}.h5'.format(backbone=args.backbone, dataset_type=args.dataset_type)
             ),
             verbose=1,
-            # period=10,
-            save_best_only=True,
-            monitor="mAP",
-            mode='max'
+            period=args.save_freq,
+            # save_best_only=True,
+            # monitor="mAP",
+            # mode='max'
         )
         checkpoint = RedirectModel(checkpoint, model)
         callbacks.append(checkpoint)
@@ -401,6 +401,7 @@ def parse_args(args):
     parser.add_argument('--multi-gpu',        help='Number of GPUs to use for parallel processing.', type=int, default=0)
     parser.add_argument('--multi-gpu-force',  help='Extra flag needed to enable (experimental) multi-gpu support.', action='store_true')
     parser.add_argument('--epochs',           help='Number of epochs to train.', type=int, default=50)
+    parser.add_argument('--save-freq',        help='Number of epochs to save the model.', default=10, type=int)
     parser.add_argument('--early-stop',       help='Number of epochs with no improvement after which training will be stopped.', default=10, type=int)
     parser.add_argument('--lr',               help='Learning rate.', type=float, default=1e-5)
     parser.add_argument('--snapshot-path',    help='Path to store snapshots of models during training (defaults to \'./snapshots\')', default='./snapshots')
