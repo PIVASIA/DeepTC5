@@ -510,7 +510,7 @@ def main(args=None):
 
     initial_epoch = 0
     if args.snapshot is not None:
-        initial_epoch = os.path.basename(args.snapshot).split(".")[0].split("_")[-1]
+        initial_epoch = int(os.path.basename(args.snapshot).split(".")[0].split("_")[-1])
 
     # start training
     return training_model.fit_generator(
