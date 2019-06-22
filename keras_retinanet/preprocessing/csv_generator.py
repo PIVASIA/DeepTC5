@@ -211,7 +211,7 @@ class CSVGenerator(Generator):
         if len(self.sub_dirs) > 1:
             return (read_image_bgr(self.image_path(image_index, sub_dir)) for sub_dir in self.sub_dirs)
         
-        return read_image_bgr(self.image_path(image_index), self.sub_dirs[0])
+        return read_image_bgr(self.image_path(image_index, self.sub_dirs[0]))
 
     def load_annotations(self, image_index):
         """ Load annotations for an image_index.
