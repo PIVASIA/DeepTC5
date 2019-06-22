@@ -429,7 +429,7 @@ def main(args=None):
         args = sys.argv[1:]
     args = parse_args(args)
 
-    # create object that stores backbone information
+    # create object that stores backbone information    
     backbone = models.backbone(args.backbone)
 
     # make sure keras is the minimum required version
@@ -482,7 +482,7 @@ def main(args=None):
         )
 
     # print model summary
-    # print(model.summary())
+    print(model.summary())
 
     # this lets the generator compute backbone layer shapes using the actual backbone model
     if 'vgg' in args.backbone or 'densenet' in args.backbone:
@@ -511,7 +511,7 @@ def main(args=None):
     # start training
     return training_model.fit_generator(
         generator=train_generator,
-        steps_per_epoch=len(train_generator) // args.batch_size,
+        steps_per_epoch=len(train_generator),
         epochs=args.epochs,
         verbose=1,
         callbacks=callbacks,
