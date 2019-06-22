@@ -508,11 +508,16 @@ def main(args=None):
     if not args.compute_val_loss:
         validation_generator = None
 
+    initial_epoch = 0
+    if args.snapshot is not None:
+        initial_epoch = os.path.basename(args.snapshot).split(".")[0].split("_")[-1]
+
     # start training
     return training_model.fit_generator(
         generator=train_generator,
         steps_per_epoch=len(train_generator),
-        epochs=args.epochs,
+        initial_epoch=initial_epoch,
+        epochs=args.epochs - initial_epoch,
         verbose=1,
         callbacks=callbacks,
         workers=args.workers,
