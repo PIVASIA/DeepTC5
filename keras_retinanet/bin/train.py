@@ -59,14 +59,12 @@ def makedirs(path):
         if not os.path.isdir(path):
             raise
 
-
 def get_session():
     """ Construct a modified tf session.
     """
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     return tf.Session(config=config)
-
 
 def model_with_weights(model, weights, skip_mismatch):
     """ Load weights for model.
@@ -79,7 +77,6 @@ def model_with_weights(model, weights, skip_mismatch):
     if weights is not None:
         model.load_weights(weights, by_name=True, skip_mismatch=skip_mismatch)
     return model
-
 
 def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0,
                   freeze_backbone=False, lr=1e-5, config=None):
@@ -275,9 +272,8 @@ def create_generators(args, preprocess_image):
         train_generator = CSVGenerator(
             args.annotations,
             args.classes,
-            input_dir_1=args.input_dir_1,
-            input_dir_2=args.input_dir_2,
             transform_generator=transform_generator,
+            sub_dirs=args.sub_dirs,
             **common_args
         )
 
@@ -285,8 +281,7 @@ def create_generators(args, preprocess_image):
             validation_generator = CSVGenerator(
                 args.val_annotations,
                 args.classes,
-                input_dir_1=args.input_dir_1,
-                input_dir_2=args.input_dir_2,
+                sub_dirs=args.sub_dirs,
                 **common_args
             )
         else:
@@ -389,25 +384,23 @@ def parse_args(args):
     oid_parser.add_argument('--parent-label', help='Use the hierarchy children of this label.', default=None)
 
     csv_parser = subparsers.add_parser('csv')
-    csv_parser.add_argument('annotations', help='Path to CSV file containing annotations for training.')
-    csv_parser.add_argument('classes', help='Path to a CSV file containing class label mapping.')
-    csv_parser.add_argument('--val-annotations', help='Path to CSV file containing annotations for validation (optional).')
+    csv_parser.add_argument('annotations',          help='Path to CSV file containing annotations for training.')
+    csv_parser.add_argument('classes',              help='Path to a CSV file containing class label mapping.')
+    csv_parser.add_argument('--val-annotations',    help='Path to CSV file containing annotations for validation (optional).')
+    csv_parser.add_argument('--sub-dirs',           help='Sub-directory where images are located.', type=str, nargs='+', default=[""])
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--snapshot',          help='Resume training from a snapshot.')
-    group.add_argument('--imagenet-weights',  help='Initialize the model with pretrained imagenet weights. This is the default behaviour.', action='store_const', const=True, default=True)
+    group.add_argument('--imagenet-weights',  help='Initialize the model with pretrained imagenet weights. This is NOT the default behaviour.', action='store_const', const=True, default=False)
     group.add_argument('--weights',           help='Initialize the model with weights from a file.')
     group.add_argument('--no-weights',        help='Don\'t initialize the model with any weights.', dest='imagenet_weights', action='store_const', const=False)
 
-    parser.add_argument('--input-dir-1',      help='To be added', type=str, default=None)
-    parser.add_argument('--input-dir-2',      help='To be added', type=str, default=None)
     parser.add_argument('--backbone',         help='Backbone model used by retinanet.', default='resnet50', type=str)
     parser.add_argument('--batch-size',       help='Size of the batches.', default=1, type=int)
     parser.add_argument('--gpu',              help='Id of the GPU to use (as reported by nvidia-smi).')
     parser.add_argument('--multi-gpu',        help='Number of GPUs to use for parallel processing.', type=int, default=0)
     parser.add_argument('--multi-gpu-force',  help='Extra flag needed to enable (experimental) multi-gpu support.', action='store_true')
     parser.add_argument('--epochs',           help='Number of epochs to train.', type=int, default=50)
-    parser.add_argument('--steps',            help='Number of steps per epoch.', type=int, default=10000)
     parser.add_argument('--early-stop',       help='Number of epochs with no improvement after which training will be stopped.', default=10, type=int)
     parser.add_argument('--lr',               help='Learning rate.', type=float, default=1e-5)
     parser.add_argument('--snapshot-path',    help='Path to store snapshots of models during training (defaults to \'./snapshots\')', default='./snapshots')
@@ -470,11 +463,13 @@ def main(args=None):
 
         print('Creating model, this may take a second...')
 
-        if args.input_dir_1 is not None and args.input_dir_2 is not None:
+        if len(args.sub_dirs) == 1:
+            backbone_retinanet = backbone.retinanet
+        elif len(args.sub_dirs) == 2:
             backbone_retinanet = backbone.dualstream_retinanet
         else:
-            backbone_retinanet = backbone.retinanet
-        
+            raise ValueError("Only retinanet and dualstream_retinanet are currently supported!")
+            
         model, training_model, prediction_model = create_models(
             backbone_retinanet=backbone_retinanet,
             num_classes=train_generator.num_classes(),
@@ -515,7 +510,7 @@ def main(args=None):
     # start training
     return training_model.fit_generator(
         generator=train_generator,
-        steps_per_epoch=args.steps,
+        steps_per_epoch=len(train_generator) // args.batch_size,
         epochs=args.epochs,
         verbose=1,
         callbacks=callbacks,

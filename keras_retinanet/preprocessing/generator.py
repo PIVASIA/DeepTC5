@@ -149,11 +149,15 @@ class Generator(keras.utils.Sequence):
 
     def filter_annotations(self, image_group, annotations_group, group):
         """ Filter annotations by removing those that are outside of the image bounds or whose width/height < 0.
+            Args:
+                image_group:        list of image or tuple (image_a, image_b) in the group
+                annotations_group:  list of annotation in the group
+                group:              list of index in group
         """
         # test all annotations
         for index, (image, annotations) in enumerate(zip(image_group, annotations_group)):
             # test x2 < x1 | y2 < y1 | x1 < 0 | y1 < 0 | x2 <= 0 | y2 <= 0 | x2 >= image.shape[1] | y2 >= image.shape[0]
-            if isinstance(image, list):
+            if isinstance(image, tuple):
                 image = image[0]
 
             invalid_indices = np.where(
@@ -184,6 +188,9 @@ class Generator(keras.utils.Sequence):
 
     def random_transform_group_entry(self, image, annotations, transform=None):
         """ Randomly transforms image and annotation.
+            Args:
+                image:        an image or a tuple (image_a, image_b)
+                annotations:  an annotation
         """
         # randomly transform both image and annotations
         if transform is not None or self.transform_generator:
@@ -191,9 +198,9 @@ class Generator(keras.utils.Sequence):
                 transform = adjust_transform_for_image(next(self.transform_generator), image, self.transform_parameters.relative_translation)
 
             # apply transformation to image
-            if isinstance(image, list):
-                for i, img in enumerate(image):
-                    image[i] = apply_transform(transform, img, self.transform_parameters)
+            if isinstance(image, tuple):
+                for i in range(len(image)):
+                    image[i] = apply_transform(transform, image[i], self.transform_parameters)
             else:
                 image = apply_transform(transform, image, self.transform_parameters)
 
@@ -206,6 +213,10 @@ class Generator(keras.utils.Sequence):
 
     def random_transform_group(self, image_group, annotations_group):
         """ Randomly transforms each image and its annotations.
+            Args:
+                image_group:        list of image or tuple (image_a, image_b) in the group
+                annotations_group:  list of annotation in the group
+                group:              list of index in group
         """
 
         assert(len(image_group) == len(annotations_group))
@@ -223,11 +234,17 @@ class Generator(keras.utils.Sequence):
 
     def preprocess_group_entry(self, image, annotations):
         """ Preprocess image and its annotations.
+            Args:
+                image:        an image or a tuple (image_a, image_b)
+                annotations:  an annotation
         """
-        if isinstance(image, list):
+        if isinstance(image, tuple):
             for i in range(len(image)):
+                # preprocess the image
                 image[i] = self.preprocess_image(image[i])
+                # resize image
                 image[i], image_scale = self.resize_image(image[i])
+                # convert to the wanted keras floatx
                 image[i] = keras.backend.cast_to_floatx(image[i])
         else:
             # preprocess the image
@@ -244,6 +261,9 @@ class Generator(keras.utils.Sequence):
 
     def preprocess_group(self, image_group, annotations_group):
         """ Preprocess each image and its annotations in its group.
+            Args:
+                image_group:        list of image or tuple (image_a, image_b) in the group
+                annotations_group:  list of annotation in the group
         """
         assert(len(image_group) == len(annotations_group))
 
@@ -268,19 +288,41 @@ class Generator(keras.utils.Sequence):
 
     def compute_inputs(self, image_group):
         """ Compute inputs for the network using an image_group.
+            Args:
+                image_group:        list of image or tuple (image_a, image_b) in the group
         """
-        # get the max image shape
-        max_shape = tuple(max(image.shape[x] for image in image_group) for x in range(3))
+        assert(len(image_group) == 0)
+        
+        
+        # check if element in image_group is image or tuple (image_a, image_b)
+        if isinstance(image_group[0], tuple):
+            # get the max image shape
+            max_shape = tuple(max(image[0].shape[x] for image in image_group) for x in range(3))
 
-        # construct an image batch object
-        image_batch = np.zeros((self.batch_size,) + max_shape, dtype=keras.backend.floatx())
+            # construct an image batch object
+            image_batch = np.zeros((self.batch_size, len(image_group[0])) + max_shape, dtype=keras.backend.floatx())
 
-        # copy all images to the upper left part of the image batch object
-        for image_index, image in enumerate(image_group):
-            image_batch[image_index, :image.shape[0], :image.shape[1], :image.shape[2]] = image
+            # copy all images to the upper left part of the image batch object
+            for image_index, image in enumerate(image_group):
+                for input_index in range(len(image_group[0])):
+                    image_batch[image_index, input_index, :image.shape[0], :image.shape[1], :image.shape[2]] = image
 
-        if keras.backend.image_data_format() == 'channels_first':
-            image_batch = image_batch.transpose((0, 3, 1, 2))
+            if keras.backend.image_data_format() == 'channels_first':
+                image_batch = image_batch.transpose((0, 1, 4, 2, 3))
+
+        else:
+            # get the max image shape
+            max_shape = tuple(max(image.shape[x] for image in image_group) for x in range(3))
+
+            # construct an image batch object
+            image_batch = np.zeros((self.batch_size,) + max_shape, dtype=keras.backend.floatx())
+
+            # copy all images to the upper left part of the image batch object
+            for image_index, image in enumerate(image_group):
+                image_batch[image_index, :image.shape[0], :image.shape[1], :image.shape[2]] = image
+
+            if keras.backend.image_data_format() == 'channels_first':
+                image_batch = image_batch.transpose((0, 3, 1, 2))
 
         return image_batch
 
@@ -310,7 +352,7 @@ class Generator(keras.utils.Sequence):
         """ Compute inputs and target outputs for the network.
         """
         # load images and annotations
-        image_group       = self.load_image_group(group)
+        image_group       = self.load_image_group(group) # can be list of image or list of tuple (image_a, image_b)
         annotations_group = self.load_annotations_group(group)
 
         # check validity of annotations

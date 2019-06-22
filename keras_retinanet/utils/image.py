@@ -67,8 +67,10 @@ def adjust_transform_for_image(transform, image, relative_translation):
 
     The translation of the matrix will be scaled with the size of the image.
     The linear part of the transformation will adjusted so that the origin of the transformation will be at the center of the image.
+    Args:
+        image:        an image or a tuple (image_a, image_b)
     """
-    if isinstance(image, list):
+    if isinstance(image, tuple):
         image = image[0]
     
     height, width, channels = image.shape
@@ -185,6 +187,7 @@ def resize_image(img, min_side=800, max_side=1333):
     """ Resize an image such that the size is constrained to min_side and max_side.
 
     Args
+        img: an image (numpy.ndarray)
         min_side: The image's min side will be equal to min_side after resizing.
         max_side: If after resizing the image's max side is above max_side, resize until the max side is equal to max_side.
 

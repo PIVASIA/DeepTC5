@@ -116,6 +116,7 @@ def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=Non
         resnet = modifier(resnet)
 
     if weights is not None:
+        print("Loading weights")
         resnet.load_weights(weights, by_name=True, skip_mismatch=skip_mismatch)
 
     # create the full model
@@ -161,6 +162,7 @@ def dualresnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier
 
     # load pre-trained weights if defined
     if weights is not None:
+        print("Loading weights")
         resnet_a.load_weights(weights, by_name=True, skip_mismatch=skip_mismatch)
         resnet_b.load_weights(weights, by_name=True, skip_mismatch=skip_mismatch)
 
