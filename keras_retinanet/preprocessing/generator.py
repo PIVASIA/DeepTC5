@@ -291,8 +291,7 @@ class Generator(keras.utils.Sequence):
             Args:
                 image_group:        list of image or tuple (image_a, image_b) in the group
         """
-        assert(len(image_group) == 0)
-        
+        assert(len(image_group) != 0)
         
         # check if element in image_group is image or tuple (image_a, image_b)
         if isinstance(image_group[0], tuple):
