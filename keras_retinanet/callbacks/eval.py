@@ -17,7 +17,6 @@ limitations under the License.
 import keras
 from ..utils.eval import evaluate
 
-
 class Evaluate(keras.callbacks.Callback):
     """ Evaluation callback for arbitrary datasets.
     """
@@ -30,6 +29,7 @@ class Evaluate(keras.callbacks.Callback):
         max_detections=100,
         save_path=None,
         tensorboard=None,
+        logger_dir=None,
         weighted_average=False,
         verbose=1
     ):
@@ -51,6 +51,7 @@ class Evaluate(keras.callbacks.Callback):
         self.max_detections  = max_detections
         self.save_path       = save_path
         self.tensorboard     = tensorboard
+        self.logger_dir      = logger_dir
         self.weighted_average = weighted_average
         self.verbose         = verbose
 
@@ -90,6 +91,12 @@ class Evaluate(keras.callbacks.Callback):
             summary_value.simple_value = self.mean_ap
             summary_value.tag = "mAP"
             self.tensorboard.writer.add_summary(summary, epoch)
+
+        if self.logger_dir is not None:
+            import csv
+            with open(os.path.join(self.logger_dir, 'eval.csv'), mode='a', newline='') as csv_f:
+                writer = csv.writer(csv_f)
+                writer.writerow([epoch, self.mean_ap])
 
         logs['mAP'] = self.mean_ap
 
