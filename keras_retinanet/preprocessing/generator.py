@@ -199,8 +199,7 @@ class Generator(keras.utils.Sequence):
 
             # apply transformation to image
             if isinstance(image, tuple):
-                for i in range(len(image)):
-                    image[i] = apply_transform(transform, image[i], self.transform_parameters)
+                image = tuple(apply_transform(transform, image[i], self.transform_parameters) for i in range(len(image)))
             else:
                 image = apply_transform(transform, image, self.transform_parameters)
 
