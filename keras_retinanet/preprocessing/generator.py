@@ -367,6 +367,7 @@ class Generator(keras.utils.Sequence):
 
         # compute network inputs
         inputs = self.compute_inputs(image_group)
+        print(inputs.shape)
 
         # compute network targets
         targets = self.compute_targets(image_group, annotations_group)
@@ -385,6 +386,6 @@ class Generator(keras.utils.Sequence):
         Keras sequence method for generating batches.
         """
         group = self.groups[index]
-        inputs, targets = self.compute_input_output(group)
+        
 
-        return inputs, targets
+        return self.compute_input_output(group)
