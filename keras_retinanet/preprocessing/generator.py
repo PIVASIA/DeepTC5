@@ -156,6 +156,8 @@ class Generator(keras.utils.Sequence):
         """
         # test all annotations
         for index, (image, annotations) in enumerate(zip(image_group, annotations_group)):
+            print(type(image), type(annotations))
+            
             # test x2 < x1 | y2 < y1 | x1 < 0 | y1 < 0 | x2 <= 0 | y2 <= 0 | x2 >= image.shape[1] | y2 >= image.shape[0]
             if isinstance(image, tuple):
                 image = image[0]
