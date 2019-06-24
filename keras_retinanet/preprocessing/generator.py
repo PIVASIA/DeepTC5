@@ -305,8 +305,8 @@ class Generator(keras.utils.Sequence):
 
             # copy all images to the upper left part of the image batch object
             for image_index, image in enumerate(image_group):
-                for input_index in range(len(image_group[0])):
-                    image_batch[image_index, input_index, :image.shape[0], :image.shape[1], :image.shape[2]] = image
+                for input_index in range(len(image)):
+                    image_batch[image_index, input_index, :image[input_index].shape[0], :image[input_index].shape[1], :image[input_index].shape[2]] = image[input_index]
 
             if keras.backend.image_data_format() == 'channels_first':
                 image_batch = image_batch.transpose((0, 1, 4, 2, 3))
