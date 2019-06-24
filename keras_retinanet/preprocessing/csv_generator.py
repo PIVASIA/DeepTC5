@@ -209,7 +209,7 @@ class CSVGenerator(Generator):
         """ Load an image at the image_index.
         """
         if len(self.sub_dirs) > 1:
-            return (read_image_bgr(self.image_path(image_index, sub_dir)) for sub_dir in self.sub_dirs)
+            return tuple(read_image_bgr(self.image_path(image_index, sub_dir)) for sub_dir in self.sub_dirs)
         
         return read_image_bgr(self.image_path(image_index, self.sub_dirs[0]))
 
