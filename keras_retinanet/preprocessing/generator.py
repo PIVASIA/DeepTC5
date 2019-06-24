@@ -238,25 +238,28 @@ class Generator(keras.utils.Sequence):
                 annotations:  an annotation
         """
         if isinstance(image, tuple):
-            for i in range(len(image)):
+            new_image = ()
+            for img in image:
                 # preprocess the image
-                image[i] = self.preprocess_image(image[i])
+                img = self.preprocess_image(img)
                 # resize image
-                image[i], image_scale = self.resize_image(image[i])
+                img, image_scale = self.resize_image(img)
                 # convert to the wanted keras floatx
-                image[i] = keras.backend.cast_to_floatx(image[i])
+                img = keras.backend.cast_to_floatx(img)
+                # 
+                new_image += (img, )
         else:
             # preprocess the image
-            image = self.preprocess_image(image)
+            new_image = self.preprocess_image(image)
             # resize image
-            image, image_scale = self.resize_image(image)
+            new_image, image_scale = self.resize_image(new_image)
             # convert to the wanted keras floatx
-            image = keras.backend.cast_to_floatx(image)
+            new_image = keras.backend.cast_to_floatx(new_image)
 
         # apply resizing to annotations too
         annotations['bboxes'] *= image_scale
 
-        return image, annotations
+        return new_image, annotations
 
     def preprocess_group(self, image_group, annotations_group):
         """ Preprocess each image and its annotations in its group.
