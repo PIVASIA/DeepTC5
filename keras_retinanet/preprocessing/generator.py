@@ -371,7 +371,6 @@ class Generator(keras.utils.Sequence):
 
         # compute network inputs
         inputs = self.compute_inputs(image_group)
-        print(inputs.shape)
 
         # compute network targets
         targets = self.compute_targets(image_group, annotations_group)
@@ -391,5 +390,4 @@ class Generator(keras.utils.Sequence):
         """
         group = self.groups[index]
         
-
         return self.compute_input_output(group)
