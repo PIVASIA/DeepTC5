@@ -185,7 +185,6 @@ def __create_pyramid_features(C3, C4, C5, postfix="", feature_size=256):
 
     return [P3, P4, P5, P6, P7]
 
-
 def default_submodels(num_classes, num_anchors):
     """ Create a list of default submodels used for object detection.
 
@@ -203,7 +202,6 @@ def default_submodels(num_classes, num_anchors):
         ('classification', default_classification_model(num_classes, num_anchors))
     ]
 
-
 def __build_model_pyramid(name, model, features):
     """ Applies a single submodel to each FPN level.
 
@@ -217,7 +215,6 @@ def __build_model_pyramid(name, model, features):
     """
     return keras.layers.Concatenate(axis=1, name=name)([model(f) for f in features])
 
-
 def __build_pyramid(models, features):
     """ Applies all submodels to each FPN level.
 
@@ -229,7 +226,6 @@ def __build_pyramid(models, features):
         A list of tensors, one for each submodel.
     """
     return [__build_model_pyramid(n, m, features) for n, m in models]
-
 
 def __build_anchors(anchor_parameters, features):
     """ Builds anchors for the shape of the features from FPN.
@@ -257,7 +253,6 @@ def __build_anchors(anchor_parameters, features):
     ]
 
     return keras.layers.Concatenate(axis=1, name='anchors')(anchors)
-
 
 def retinanet(
     inputs,
@@ -357,7 +352,6 @@ def dualstream_retinanet(
     pyramids = __build_pyramid(submodels, features)
 
     return keras.models.Model(inputs=[inputs_a, inputs_b], outputs=pyramids, name=name)
-
 
 def retinanet_bbox(
     model                 = None,
