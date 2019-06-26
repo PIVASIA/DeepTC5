@@ -150,20 +150,20 @@ def create_callbacks(model, training_model, prediction_model, validation_generat
 
     tensorboard_callback = None
     if args.logger_dir:
-        tensorboard_callback = keras.callbacks.TensorBoard(
-            log_dir                = args.logger_dir,
-            histogram_freq         = 0,
-            batch_size             = args.batch_size,
-            write_graph            = True,
-            write_grads            = False,
-            write_images           = False,
-            embeddings_freq        = 0,
-            embeddings_layer_names = None,
-            embeddings_metadata    = None
-        )
-        callbacks.append(tensorboard_callback)
+        # tensorboard_callback = keras.callbacks.TensorBoard(
+        #     log_dir                = args.logger_dir,
+        #     histogram_freq         = 0,
+        #     batch_size             = args.batch_size,
+        #     write_graph            = True,
+        #     write_grads            = False,
+        #     write_images           = False,
+        #     embeddings_freq        = 0,
+        #     embeddings_layer_names = None,
+        #     embeddings_metadata    = None
+        # )
+        # callbacks.append(tensorboard_callback)
 
-        csv_logger = CSVLogger(os.path.join(args.logger_dir, 'train.csv'), append=True, separator=';')
+        csv_logger = CSVLogger(os.path.join(args.logger_dir, 'train.csv'), append=True, separator=',')
         callbacks.append(csv_logger)
 
     if args.evaluation and validation_generator:
