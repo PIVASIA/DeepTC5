@@ -80,8 +80,7 @@ def model_with_weights(model, weights, skip_mismatch):
         model.load_weights(weights, by_name=True, skip_mismatch=skip_mismatch)
     return model
 
-def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0,
-                  freeze_backbone=False, lr=1e-5, config=None):
+def create_models(backbone_retinanet, num_classes, weights, freeze_backbone=False, args=None):
     """ Creates three models (model, training_model, prediction_model).
 
     Args
@@ -103,19 +102,34 @@ def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0,
     # load anchor parameters, or pass None (so that defaults will be used)
     anchor_params = None
     num_anchors   = None
-    if config and 'anchor_parameters' in config:
-        anchor_params = parse_anchor_parameters(config)
+    if args.config and 'anchor_parameters' in args.config:
+        anchor_params = parse_anchor_parameters(args.config)
         num_anchors   = anchor_params.num_anchors()
 
     # Keras recommends initialising a multi-gpu model on the CPU to ease weight sharing, and to prevent OOM errors.
     # optionally wrap in a parallel model
-    if multi_gpu > 1:
+    if args.multi_gpu > 1:
         from keras.utils import multi_gpu_model
         with tf.device('/cpu:0'):
             model = backbone_retinanet(num_classes, num_anchors=num_anchors, modifier=modifier, weights=weights, skip_mismatch=True)
-        training_model = multi_gpu_model(model, gpus=multi_gpu)
+        training_model = multi_gpu_model(model, gpus=args.multi_gpu)
     else:
-        model          = backbone_retinanet(num_classes, num_anchors=num_anchors, modifier=modifier, weights=weights, skip_mismatch=True)
+        if len(args.sub_dirs) == 1:
+            model          = backbone_retinanet(num_classes, 
+                                                inputs=keras.layers.Input(shape=(args.input_depth_a, None, None)), 
+                                                num_anchors=num_anchors, 
+                                                modifier=modifier, 
+                                                weights=weights, 
+                                                skip_mismatch=True)
+        elif len(args.sub_dirs) == 2:
+            model          = backbone_retinanet(num_classes, 
+                                                inputs_a=keras.layers.Input(shape=(args.input_depth_a, None, None)), 
+                                                inputs_b=keras.layers.Input(shape=(args.input_depth_b, None, None)), 
+                                                num_anchors=num_anchors, 
+                                                modifier=modifier, 
+                                                weights=weights, 
+                                                skip_mismatch=True)
+        
         training_model = model
 
     # make prediction model
@@ -127,11 +141,10 @@ def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0,
             'regression'    : losses.smooth_l1(),
             'classification': losses.focal()
         },
-        optimizer=keras.optimizers.adam(lr=lr, clipnorm=0.001)
+        optimizer=keras.optimizers.adam(lr=args.lr, clipnorm=0.001)
     )
 
     return model, training_model, prediction_model
-
 
 def create_callbacks(model, training_model, prediction_model, validation_generator, args):
     """ Creates the callbacks to use during training.
@@ -209,7 +222,6 @@ def create_callbacks(model, training_model, prediction_model, validation_generat
     ))
 
     return callbacks
-
 
 def create_generators(args, preprocess_image):
     """ Create generators for training and validation.
@@ -329,7 +341,6 @@ def create_generators(args, preprocess_image):
 
     return train_generator, validation_generator
 
-
 def check_args(parsed_args):
     """ Function to check for inherent contradictions within parsed arguments.
     For example, batch_size < num_gpus
@@ -359,7 +370,6 @@ def check_args(parsed_args):
         warnings.warn('Using experimental backbone {}. Only resnet50 has been properly tested.'.format(parsed_args.backbone))
 
     return parsed_args
-
 
 def parse_args(args):
     """ Parse the arguments.
@@ -400,6 +410,8 @@ def parse_args(args):
     group.add_argument('--no-weights',        help='Don\'t initialize the model with any weights.', dest='imagenet_weights', action='store_const', const=False)
 
     parser.add_argument('--backbone',         help='Backbone model used by retinanet.', default='resnet50', type=str)
+    parser.add_argument('--input_depth_a',    help='Size of the batches.', default=3, type=int)
+    parser.add_argument('--input_depth_b',    help='Size of the batches.', default=3, type=int)
     parser.add_argument('--batch-size',       help='Size of the batches.', default=1, type=int)
     parser.add_argument('--gpu',              help='Id of the GPU to use (as reported by nvidia-smi).')
     parser.add_argument('--multi-gpu',        help='Number of GPUs to use for parallel processing.', type=int, default=0)
@@ -425,7 +437,6 @@ def parse_args(args):
     parser.add_argument('--max-queue-size', help='Queue length for multiprocessing workers in fit generator.', type=int, default=10)
 
     return check_args(parser.parse_args(args))
-
 
 def main(args=None):
     # parse arguments
@@ -479,10 +490,8 @@ def main(args=None):
             backbone_retinanet=backbone_retinanet,
             num_classes=train_generator.num_classes(),
             weights=weights,
-            multi_gpu=args.multi_gpu,
             freeze_backbone=args.freeze_backbone,
-            lr=args.lr,
-            config=args.config
+            args=args
         )
 
     # print model summary
