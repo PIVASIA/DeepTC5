@@ -31,16 +31,16 @@ def plotloss(log_dir, csv_train, csv_val):
     hist            = pd.merge(training_hist, val_hist, on='epoch')
 
     # Initiation
-    epoch = hist["epoch"]
-    tr_loss = hist["loss"]
-    val_acc = np.asarray(hist["mAP"])
+    epoch           = hist["epoch"]
+    tr_loss         = hist["loss"]
+    val_acc         = np.asarray(hist["mAP"])
 
-    epoch = epoch[1:] + 1
-    tr_loss = tr_loss[1:]
-    val_acc = val_acc[1:]
+    epoch           = epoch[1:] + 1
+    tr_loss         = tr_loss[1:]
+    val_acc         = val_acc[1:]
 
-    fig, ax1 = plt.subplots(figsize=(8, 6))
-    ax2 = ax1.twinx()
+    fig, ax1        = plt.subplots(figsize=(8, 6))
+    ax2             = ax1.twinx()
 
     # Label and color the axes
     ax1.set_xlabel('Epoch', fontsize=16)

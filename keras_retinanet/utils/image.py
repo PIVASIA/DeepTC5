@@ -15,11 +15,31 @@ limitations under the License.
 """
 
 from __future__ import division
+import os
+
 import numpy as np
 import cv2
 from PIL import Image
+import tifffile as tiff
 
 from .transform import change_transform_origin
+
+def read_image(path):
+    ext = os.path.basename(path).split(".")[-1]
+    if ext == "tif" or ext == "tiff":
+        return read_image_tif(path)
+    else:
+        return read_image_bgr(path)
+
+
+def read_image_tif(path):
+    """ Read an image in TIF format.
+
+    Args
+        path: Path to the image.
+    """
+    image = tiff.imread(path)
+    return image
 
 
 def read_image_bgr(path):
