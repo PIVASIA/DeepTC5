@@ -116,15 +116,15 @@ def create_models(backbone_retinanet, num_classes, weights, freeze_backbone=Fals
     else:
         if len(args.sub_dirs) == 1:
             model          = backbone_retinanet(num_classes, 
-                                                inputs=keras.layers.Input(shape=(args.input_depth_a, None, None)), 
+                                                input_depth=args.input_depth_a, 
                                                 num_anchors=num_anchors, 
                                                 modifier=modifier, 
                                                 weights=weights, 
                                                 skip_mismatch=True)
         elif len(args.sub_dirs) == 2:
             model          = backbone_retinanet(num_classes, 
-                                                inputs_a=keras.layers.Input(shape=(args.input_depth_a, None, None)), 
-                                                inputs_b=keras.layers.Input(shape=(args.input_depth_b, None, None)), 
+                                                input_depth_a=args.input_depth_a, 
+                                                input_depth_b=args.input_depth_b, 
                                                 num_anchors=num_anchors, 
                                                 modifier=modifier, 
                                                 weights=weights, 
