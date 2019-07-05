@@ -122,7 +122,7 @@ class CSVGenerator(Generator):
         csv_class_file,
         base_dir=None,
         sub_dirs = [""],
-        exts=[""]
+        exts=[""],
         **kwargs
     ):
         """ Initialize a CSV data generator.
