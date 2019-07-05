@@ -290,6 +290,7 @@ def create_generators(args, preprocess_image):
             args.classes,
             transform_generator=transform_generator,
             sub_dirs=args.sub_dirs,
+            exts=args.exts,
             **common_args
         )
 
@@ -298,6 +299,7 @@ def create_generators(args, preprocess_image):
                 args.val_annotations,
                 args.classes,
                 sub_dirs=args.sub_dirs,
+                exts=args.exts,
                 **common_args
             )
         else:
@@ -402,6 +404,7 @@ def parse_args(args):
     csv_parser.add_argument('classes',              help='Path to a CSV file containing class label mapping.')
     csv_parser.add_argument('--val-annotations',    help='Path to CSV file containing annotations for validation (optional).')
     csv_parser.add_argument('--sub-dirs',           help='Sub-directory where images are located.', type=str, nargs='+', default=[""])
+    csv_parser.add_argument('--exts',               help='Extension of images in each sub-dir.', type=str, nargs='+', default=[""])
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--snapshot',          help='Resume training from a snapshot.')
