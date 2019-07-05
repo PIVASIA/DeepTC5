@@ -193,11 +193,11 @@ class CSVGenerator(Generator):
         """
         return self.labels[label]
 
-    def image_path(self, image_index, sub_dir="", ext=".png"):
+    def image_path(self, image_index, sub_dir="", ext="png"):
         """ Returns the image path for image_index.
         """
         filename = self.image_names[image_index]
-        return os.path.join(self.base_dir, sub_dir, *filename.split('\\'), ext) #fix problem of path spashes between Windows and Unix
+        return os.path.join(self.base_dir, sub_dir, *filename.split('\\') + "." + ext) #fix problem of path spashes between Windows and Unix
 
     def image_aspect_ratio(self, image_index):
         """ Compute the aspect ratio for an image with image_index.
