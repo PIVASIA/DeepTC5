@@ -122,6 +122,7 @@ class CSVGenerator(Generator):
         csv_class_file,
         base_dir=None,
         sub_dirs = [""],
+        exts=[""],
         **kwargs
     ):
         """ Initialize a CSV data generator.
@@ -135,6 +136,7 @@ class CSVGenerator(Generator):
         self.image_data  = {}
         self.base_dir    = base_dir
         self.sub_dirs    = sub_dirs
+        self.exts        = exts
 
         # Take base_dir from annotations file if not explicitly specified.
         if self.base_dir is None:
@@ -191,27 +193,27 @@ class CSVGenerator(Generator):
         """
         return self.labels[label]
 
-    def image_path(self, image_index, sub_dir=""):
+    def image_path(self, image_index, sub_dir="", ext="png"):
         """ Returns the image path for image_index.
         """
         filename = self.image_names[image_index]
-        return os.path.join(self.base_dir, sub_dir, *filename.split('\\')) #fix problem of path spashes between Windows and Unix
+        return os.path.join(self.base_dir, sub_dir, filename + "." + ext)
 
     def image_aspect_ratio(self, image_index):
         """ Compute the aspect ratio for an image with image_index.
         """
         # PIL is fast for metadata
-        image = Image.open(self.image_path(image_index, self.sub_dirs[0]))
+        image = read_image(self.image_path(image_index, self.sub_dirs[0], self.exts[0]))
 
-        return float(image.width) / float(image.height)
+        return float(image.shape[1]) / float(image.shape[0])
 
     def load_image(self, image_index):
         """ Load an image at the image_index.
         """
         if len(self.sub_dirs) > 1:
-            return tuple(read_image(self.image_path(image_index, sub_dir)) for sub_dir in self.sub_dirs)
+            return tuple(read_image(self.image_path(image_index, sub_dir, ext)) for (sub_dir, ext) in zip(self.sub_dirs, self.exts))
         
-        return read_image(self.image_path(image_index, self.sub_dirs[0]))
+        return read_image(self.image_path(image_index, self.sub_dirs[0], self.exts[0]))
 
     def load_annotations(self, image_index):
         """ Load annotations for an image_index.

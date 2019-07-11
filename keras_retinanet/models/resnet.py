@@ -82,7 +82,7 @@ class ResNetBackbone(Backbone):
         return preprocess_image(inputs, mode='caffe')
 
 
-def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=None,  weights=None, skip_mismatch=True, **kwargs):
+def resnet_retinanet(num_classes, backbone='resnet50', input_depth=3, modifier=None,  weights=None, skip_mismatch=True, **kwargs):
     """ Constructs a retinanet model using a resnet backbone.
 
     Args
@@ -95,11 +95,10 @@ def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=Non
         RetinaNet model with a ResNet backbone.
     """
     # choose default input
-    if inputs is None:
-        if keras.backend.image_data_format() == 'channels_first':
-            inputs = keras.layers.Input(shape=(3, None, None))
-        else:
-            inputs = keras.layers.Input(shape=(None, None, 3))
+    if keras.backend.image_data_format() == 'channels_first':
+        inputs = keras.layers.Input(shape=(input_depth, None, None))
+    else:
+        inputs = keras.layers.Input(shape=(None, None, input_depth))
 
     # create the resnet backbone
     if backbone == 'resnet50':
@@ -122,7 +121,7 @@ def resnet_retinanet(num_classes, backbone='resnet50', inputs=None, modifier=Non
     # create the full model
     return retinanet.retinanet(inputs=inputs, num_classes=num_classes, backbone_layers=resnet.outputs[1:], **kwargs)
 
-def dualresnet_retinanet(num_classes, backbone='resnet50', inputs_a=None, inputs_b=None, modifier=None,  weights=None, skip_mismatch=True, **kwargs):
+def dualresnet_retinanet(num_classes, backbone='resnet50', input_depth_a=3, input_depth_b=3, modifier=None,  weights=None, skip_mismatch=True, **kwargs):
     """ Constructs a retinanet model using a resnet backbone.
 
     Args
@@ -135,17 +134,12 @@ def dualresnet_retinanet(num_classes, backbone='resnet50', inputs_a=None, inputs
         RetinaNet model with a ResNet backbone.
     """
     # choose default input
-    if inputs_a is None:
-        if keras.backend.image_data_format() == 'channels_first':
-            inputs_a = keras.layers.Input(shape=(3, None, None))
-        else:
-            inputs_a = keras.layers.Input(shape=(None, None, 3))
-    
-    if inputs_b is None:
-        if keras.backend.image_data_format() == 'channels_first':
-            inputs_b = keras.layers.Input(shape=(3, None, None))
-        else:
-            inputs_b = keras.layers.Input(shape=(None, None, 3))
+    if keras.backend.image_data_format() == 'channels_first':
+        inputs_a = keras.layers.Input(shape=(input_depth_a, None, None))
+        inputs_b = keras.layers.Input(shape=(input_depth_b, None, None))
+    else:
+        inputs_a = keras.layers.Input(shape=(None, None, input_depth_a))
+        inputs_b = keras.layers.Input(shape=(None, None, input_depth_b))
 
     # create the resnet backbone
     if backbone == 'resnet50':
