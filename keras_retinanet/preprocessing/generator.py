@@ -298,19 +298,23 @@ class Generator(keras.utils.Sequence):
         # check if element in image_group is image or tuple (image_a, image_b)
         if isinstance(image_group[0], tuple):
             # get the max image shape
-            max_shape = tuple(max(image[0].shape[x] for image in image_group) for x in range(3))
+            max_shape_0 = tuple(max(image[0].shape[x] for image in image_group) for x in range(3))
+            max_shape_1 = tuple(max(image[1].shape[x] for image in image_group) for x in range(3))
 
             # construct an image batch object
-            image_batch = np.zeros((self.batch_size, len(image_group[0])) + max_shape, dtype=keras.backend.floatx())
+            image_batch_0 = np.zeros((self.batch_size, ) + max_shape_0, dtype=keras.backend.floatx())
+            image_batch_1 = np.zeros((self.batch_size, ) + max_shape_1, dtype=keras.backend.floatx())
 
             # copy all images to the upper left part of the image batch object
             for image_index, image in enumerate(image_group):
-                for input_index in range(len(image)):
-                    image_batch[image_index, input_index, :image[input_index].shape[0], :image[input_index].shape[1], :image[input_index].shape[2]] = image[input_index]
+                image_batch_0[image_index, :image[0].shape[0], :image[0].shape[1], :image[0].shape[2]] = image[0]
+                image_batch_1[image_index, :image[1].shape[0], :image[1].shape[1], :image[1].shape[2]] = image[1]
 
             if keras.backend.image_data_format() == 'channels_first':
-                image_batch = image_batch.transpose((0, 1, 4, 2, 3))
+                image_batch_0 = image_batch_0.transpose((0, 3, 1, 2))
+                image_batch_1 = image_batch_1.transpose((0, 3, 1, 2))
 
+            return image_batch_0, image_batch_1
         else:
             # get the max image shape
             max_shape = tuple(max(image.shape[x] for image in image_group) for x in range(3))
@@ -325,7 +329,7 @@ class Generator(keras.utils.Sequence):
             if keras.backend.image_data_format() == 'channels_first':
                 image_batch = image_batch.transpose((0, 3, 1, 2))
 
-        return image_batch
+            return image_batch
 
     def generate_anchors(self, image_shape):
         anchor_params = None
@@ -369,12 +373,14 @@ class Generator(keras.utils.Sequence):
         # perform preprocessing steps
         image_group, annotations_group = self.preprocess_group(image_group, annotations_group)
 
-        # compute network inputs
-        inputs = self.compute_inputs(image_group)
-
         # compute network targets
         targets = self.compute_targets(image_group, annotations_group)
 
+        # compute network inputs
+        inputs = self.compute_inputs(image_group)
+        
+        if isinstance(inputs, tuple):
+            return inputs[0], inputs[1], targets
         return inputs, targets
 
     def __len__(self):
