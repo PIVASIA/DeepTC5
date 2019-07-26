@@ -380,9 +380,7 @@ class Generator(keras.utils.Sequence):
         inputs = self.compute_inputs(image_group)
         
         if isinstance(inputs, tuple):
-            print(inputs[0].shape, inputs[1].shape)
-            return inputs[0], inputs[1], targets
-        print(inputs.shape)
+            return [inputs[0], inputs[1]], targets
         return inputs, targets
 
     def __len__(self):
