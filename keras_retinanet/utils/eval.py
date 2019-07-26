@@ -74,14 +74,29 @@ def _get_detections(generator, model, score_threshold=0.05, max_detections=100, 
 
     for i in progressbar.progressbar(range(generator.size()), prefix='Running network: '):
         raw_image    = generator.load_image(i)
-        image        = generator.preprocess_image(raw_image.copy())
-        image, scale = generator.resize_image(image)
+        
+        if isinstance(raw_image, tuple):
+            image_0         = generator.preprocess_image(raw_image[0].copy())
+            image_0, scale  = generator.resize_image(image_0)
 
-        if keras.backend.image_data_format() == 'channels_first':
-            image = image.transpose((2, 0, 1))
+            image_1         = generator.preprocess_image(raw_image[1].copy())
+            image_1, scale  = generator.resize_image(image_1)
 
-        # run network
-        boxes, scores, labels = model.predict_on_batch(np.expand_dims(image, axis=0))[:3]
+            if keras.backend.image_data_format() == 'channels_first':
+                image_0 = image_0.transpose((2, 0, 1))
+                image_1 = image_1.transpose((2, 0, 1))
+
+            # run network
+            boxes, scores, labels = model.predict_on_batch([np.expand_dims(image_0, axis=0), np.expand_dims(image_1, axis=0)])[:3]
+        else:
+            image        = generator.preprocess_image(raw_image.copy())
+            image, scale = generator.resize_image(image)
+
+            if keras.backend.image_data_format() == 'channels_first':
+                image = image.transpose((2, 0, 1))
+
+            # run network
+            boxes, scores, labels = model.predict_on_batch(np.expand_dims(image, axis=0))[:3]
 
         # correct boxes for image scale
         boxes /= scale
