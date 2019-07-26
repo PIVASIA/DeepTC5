@@ -314,6 +314,7 @@ class Generator(keras.utils.Sequence):
                 image_batch_0 = image_batch_0.transpose((0, 3, 1, 2))
                 image_batch_1 = image_batch_1.transpose((0, 3, 1, 2))
 
+            print(image_batch_0.shape, image_batch_1.shape)
             return image_batch_0, image_batch_1
         else:
             # get the max image shape
@@ -378,6 +379,7 @@ class Generator(keras.utils.Sequence):
 
         # compute network inputs
         inputs = self.compute_inputs(image_group)
+        print(type(inputs))
         
         if isinstance(inputs, tuple):
             print(inputs[0].shape, inputs[1].shape, targets.shape)
