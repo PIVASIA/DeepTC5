@@ -41,8 +41,6 @@ def read_image_tif(path):
     image = tiff.imread(path)
     if len(image.shape) == 2:
         image = np.expand_dims(image, 2)
-
-    print(image.shape)
     return image
 
 def read_image_bgr(path):
@@ -183,7 +181,12 @@ def compute_resize_scale(image_shape, min_side=800, max_side=1333):
     Returns
         A resizing scale.
     """
-    (rows, cols, _) = image_shape
+    if len(image_shape) == 2:
+        (row, cols)   = image_shape
+    elif len(image_shape) == 3:
+        (rows, cols, _) = image_shape
+    else:
+        RaiseValueError("Image shape must be 2 or 3")
 
     smallest_side = min(rows, cols)
 
@@ -211,7 +214,6 @@ def resize_image(img, min_side=800, max_side=1333):
         A resized image.
     """
     # compute scale to resize the image
-    print(img.shape)
     scale = compute_resize_scale(img.shape, min_side=min_side, max_side=max_side)
 
     # resize the image with the computed scale
