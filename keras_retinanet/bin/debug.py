@@ -87,6 +87,8 @@ def create_generator(args):
             args.annotations,
             args.classes,
             transform_generator=transform_generator,
+            sub_dirs=args.sub_dirs,
+            exts=args.exts,
             image_min_side=args.image_min_side,
             image_max_side=args.image_max_side,
             config=args.config
@@ -152,6 +154,8 @@ def parse_args(args):
     csv_parser = subparsers.add_parser('csv')
     csv_parser.add_argument('annotations', help='Path to CSV file containing annotations for evaluation.')
     csv_parser.add_argument('classes',     help='Path to a CSV file containing class label mapping.')
+    csv_parser.add_argument('--sub-dirs',           help='Sub-directory where images are located.', type=str, nargs='+', default=[""])
+    csv_parser.add_argument('--exts',               help='Extension of images in each sub-dir.', type=str, nargs='+', default=[""])
 
     parser.add_argument('--num_images', help='Number of images to be shown.', type=int, default=12)
     parser.add_argument('-l', '--loop', help='Loop forever, even if the dataset is exhausted.', action='store_true')
