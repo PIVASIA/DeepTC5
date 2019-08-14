@@ -182,7 +182,7 @@ def compute_resize_scale(image_shape, min_side=800, max_side=1333):
         A resizing scale.
     """
     if len(image_shape) == 2:
-        (row, cols)   = image_shape
+        (rows, cols)   = image_shape
     elif len(image_shape) == 3:
         (rows, cols, _) = image_shape
     else:
