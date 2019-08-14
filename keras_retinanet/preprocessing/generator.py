@@ -131,6 +131,11 @@ class Generator(keras.utils.Sequence):
         """
         raise NotImplementedError('load_image method not implemented')
 
+    def get_filename(self, image_index):
+        """ Load an image at the image_index.
+        """
+        raise NotImplementedError('get_filename method not implemented')
+
     def load_annotations(self, image_index):
         """ Load annotations for an image_index.
         """

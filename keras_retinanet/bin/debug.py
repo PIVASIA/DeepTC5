@@ -187,6 +187,8 @@ def run(generator, args, anchor_params):
         image       = generator.load_image(i)
         image       = image / np.max(image)
 
+        filename    = generator.get_filename(i)
+
         annotations = generator.load_annotations(i)
         if len(annotations['labels']) > 0 :
             # apply random transformations
@@ -214,8 +216,11 @@ def run(generator, args, anchor_params):
                 # result is that annotations without anchors are red, with anchors are green
                 draw_boxes(image, annotations['bboxes'][max_indices[positive_indices], :], (0, 255, 0))
 
-        plt.subplot(num_images // columns + 1, columns, i + 1)
-        plt.imshow(image)
+        ax = plt.subplot(num_images // columns + 1, columns, i + 1)
+        ax.set_title(filename)
+        ax.imshow(image)
+    
+    plt.tight_layout()
     plt.savefig("debug.png")
     return True
 
