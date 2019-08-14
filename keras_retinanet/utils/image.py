@@ -39,8 +39,8 @@ def read_image_tif(path):
         path: Path to the image.
     """
     image = tiff.imread(path)
+    image[image == 0]   = 124.0952
     if len(image.shape) == 2:
-        image[image == 0]   = 124.0952
         image               = np.expand_dims(image, 2)
         image               = np.repeat(image, 3, axis=2)
     return image

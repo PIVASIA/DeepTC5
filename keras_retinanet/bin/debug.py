@@ -19,6 +19,7 @@ limitations under the License.
 import argparse
 import os
 import sys
+import numpy as np
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -184,6 +185,8 @@ def run(generator, args, anchor_params):
     for i in range(num_images):
         # load the data
         image       = generator.load_image(i)
+        image       = image / np.max(image)
+
         annotations = generator.load_annotations(i)
         if len(annotations['labels']) > 0 :
             # apply random transformations
