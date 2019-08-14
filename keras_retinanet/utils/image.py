@@ -53,7 +53,7 @@ def read_image_bgr(path):
 
 
 def preprocess_image(x, mode='caffe'):
-    """ Preprocess an image by subtracting the ImageNet mean.
+    """ Preprocess an image by subtracting the dataset mean.
 
     Args
         x: np.array of shape (None, None, 3) or (3, None, None).
@@ -70,15 +70,8 @@ def preprocess_image(x, mode='caffe'):
 
     # covert always to float32 to keep compatibility with opencv
     x = x.astype(np.float32)
-
-    if mode == 'tf':
-        x /= 127.5
-        x -= 1.
-    elif mode == 'caffe':
-        x[..., 0] -= 103.939
-        x[..., 1] -= 116.779
-        x[..., 2] -= 123.68
-
+    x -= 124.0952
+    x /= 151.9853
     return x
 
 
