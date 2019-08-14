@@ -41,6 +41,8 @@ def read_image_tif(path):
     image = tiff.imread(path)
     if len(image.shape) == 2:
         image = np.expand_dims(image, 2)
+
+    print(image.shape)
     return image
 
 def read_image_bgr(path):
