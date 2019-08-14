@@ -217,7 +217,7 @@ class CSVGenerator(Generator):
         return read_image(self.image_path(image_index, self.sub_dirs[0], self.exts[0]))
 
     def get_filename(self, image_index):
-        return self.image_path[image_index]
+        return self.image_names[image_index]
 
     def load_annotations(self, image_index):
         """ Load annotations for an image_index.
