@@ -115,9 +115,9 @@ class TransformParameters:
     """
     def __init__(
         self,
-        fill_mode            = 'nearest',
+        fill_mode            = 'constant',
         interpolation        = 'linear',
-        cval                 = 0,
+        cval                 = 124.0952,
         relative_translation = True,
     ):
         self.fill_mode            = fill_mode
