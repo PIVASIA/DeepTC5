@@ -39,10 +39,6 @@ def read_image_tif(path):
         path: Path to the image.
     """
     image = tiff.imread(path)
-    image[image == 0]   = 124.0952
-    if len(image.shape) == 2:
-        image               = np.expand_dims(image, 2)
-        image               = np.repeat(image, 3, axis=2)
     return image
 
 def read_image_bgr(path):
@@ -75,10 +71,12 @@ def preprocess_image(x, mode='caffe'):
     x = x.astype(np.float32)
 
     if mode == 'tf':
-        x -= 124.0952
-        x /= 151.9853
+        x /= 127.5
+        x -= 1.0
     elif mode == 'caffe':
-        x -= 124.0952
+        x[..., 0] -= 103.939
+        x[..., 1] -= 116.779
+        x[..., 2] -= 123.68
 
     return x
 
