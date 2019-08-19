@@ -33,7 +33,7 @@ def draw_box(image, box, color, thickness=2):
     cv2.rectangle(image, (b[0], b[1]), (b[2], b[3]), color, thickness, cv2.LINE_AA)
 
 
-def draw_caption(image, box, caption):
+def draw_caption(image, box, caption, color):
     """ Draws a caption above the box in an image.
 
     # Arguments
@@ -43,7 +43,7 @@ def draw_caption(image, box, caption):
     """
     b = np.array(box).astype(int)
     cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 2)
-    cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
+    cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, color, 1)
 
 
 def draw_boxes(image, boxes, color, thickness=2):
@@ -79,7 +79,7 @@ def draw_detections(image, boxes, scores, labels, color=None, label_to_name=None
 
         # draw labels
         caption = (label_to_name(labels[i]) if label_to_name else labels[i]) + ': {0:.2f}'.format(scores[i])
-        draw_caption(image, boxes[i, :], caption)
+        draw_caption(image, boxes[i, :], caption, color=c)
 
 
 def draw_annotations(image, annotations, color=(0, 255, 0), label_to_name=None):
