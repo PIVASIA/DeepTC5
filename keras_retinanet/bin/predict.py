@@ -77,22 +77,22 @@ def parse_args(args):
     pascal_parser.add_argument('pascal_path', help='Path to dataset directory (ie. /tmp/VOCdevkit).')
 
     csv_parser = subparsers.add_parser('csv')
-    csv_parser.add_argument('annotations',          help='Path to CSV file containing annotations for evaluation.')
-    csv_parser.add_argument('classes',              help='Path to a CSV file containing class label mapping.')
-    csv_parser.add_argument('--sub-dirs',           help='Sub-directory where images are located.', type=str, nargs='+', default=[""])
-    csv_parser.add_argument('--exts',               help='Extension of images in each sub-dir.', type=str, nargs='+', default=[""])
+    csv_parser.add_argument('annotations',      help='Path to CSV file containing annotations for evaluation.')
+    csv_parser.add_argument('classes',          help='Path to a CSV file containing class label mapping.')
+    csv_parser.add_argument('--sub-dirs',       help='Sub-directory where images are located.', type=str, nargs='+', default=[""])
+    csv_parser.add_argument('--exts',           help='Extension of images in each sub-dir.', type=str, nargs='+', default=[""])
 
-    parser.add_argument('model',              help='Path to RetinaNet model.')
-    parser.add_argument('--convert-model',    help='Convert the model to an inference model (ie. the input is a training model).', action='store_true')
-    parser.add_argument('--backbone',         help='The backbone of the model.', default='resnet50')
-    parser.add_argument('--gpu',              help='Id of the GPU to use (as reported by nvidia-smi).')
-    parser.add_argument('--score-threshold',  help='Threshold on score to filter detections with (defaults to 0.05).', default=0.05, type=float)
-    parser.add_argument('--iou-threshold',    help='IoU Threshold to count for a positive detection (defaults to 0.5).', default=0.5, type=float)
-    parser.add_argument('--max-detections',   help='Max Detections per image (defaults to 100).', default=100, type=int)
-    parser.add_argument('--save-path',        help='Path for saving images with detections (doesn\'t work for COCO).')
-    parser.add_argument('--image-min-side',   help='Rescale the image so the smallest side is min_side.', type=int, default=800)
-    parser.add_argument('--image-max-side',   help='Rescale the image if the largest side is larger than max_side.', type=int, default=1333)
-    parser.add_argument('--config',           help='Path to a configuration parameters .ini file (only used with --convert-model).')
+    parser.add_argument('--snapshot',           help='Path to RetinaNet model.')
+    parser.add_argument('--convert-model',      help='Convert the model to an inference model (ie. the input is a training model).', action='store_true')
+    parser.add_argument('--backbone',           help='The backbone of the model.', default='resnet50')
+    parser.add_argument('--gpu',                help='Id of the GPU to use (as reported by nvidia-smi).')
+    parser.add_argument('--score-threshold',    help='Threshold on score to filter detections with (defaults to 0.05).', default=0.05, type=float)
+    parser.add_argument('--iou-threshold',      help='IoU Threshold to count for a positive detection (defaults to 0.5).', default=0.5, type=float)
+    parser.add_argument('--max-detections',     help='Max Detections per image (defaults to 100).', default=100, type=int)
+    parser.add_argument('--save-path',          help='Path for saving images with detections (doesn\'t work for COCO).')
+    parser.add_argument('--image-min-side',     help='Rescale the image so the smallest side is min_side.', type=int, default=800)
+    parser.add_argument('--image-max-side',     help='Rescale the image if the largest side is larger than max_side.', type=int, default=1333)
+    parser.add_argument('--config',             help='Path to a configuration parameters .ini file (only used with --convert-model).')
 
     return parser.parse_args(args)
 
@@ -129,7 +129,7 @@ def main(args=None):
 
     # load the model
     print('Loading model, this may take a second...')
-    model = models.load_model(args.model, backbone_name=args.backbone)
+    model = models.load_model(args.snapshot, backbone_name=args.backbone)
 
     # optionally convert the model
     if args.convert_model:
