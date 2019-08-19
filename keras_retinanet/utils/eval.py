@@ -55,7 +55,7 @@ def _compute_ap(recall, precision):
     return ap
 
 
-def _get_detections(generator, model, score_threshold=0.5, max_detections=100, save_path=None):
+def _get_detections(generator, model, score_threshold=0.05, max_detections=100, draw_annotation=True, save_path=None):
     """ Get the detections from the model using the generator.
 
     The result is a list of lists such that the size is:
@@ -81,6 +81,8 @@ def _get_detections(generator, model, score_threshold=0.5, max_detections=100, s
 
             image_1         = generator.preprocess_image(raw_image[1].copy())
             image_1, scale  = generator.resize_image(image_1)
+
+            raw_image       = raw_image[0]
 
             if keras.backend.image_data_format() == 'channels_first':
                 image_0 = image_0.transpose((2, 0, 1))
@@ -117,7 +119,8 @@ def _get_detections(generator, model, score_threshold=0.5, max_detections=100, s
         image_detections = np.concatenate([image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_labels, axis=1)], axis=1)
 
         if save_path is not None:
-            draw_annotations(raw_image, generator.load_annotations(i), label_to_name=generator.label_to_name)
+            if draw_annotation:
+                draw_annotations(raw_image, generator.load_annotations(i), label_to_name=generator.label_to_name)
             draw_detections(raw_image, image_boxes, image_scores, image_labels, label_to_name=generator.label_to_name)
 
             cv2.imwrite(os.path.join(save_path, '{}.png'.format(i)), raw_image)
@@ -256,17 +259,5 @@ def predict(
     max_detections=100,
     save_path=None
 ):
-    """ Evaluate a given dataset using a given model.
-
-    # Arguments
-        generator       : The generator that represents the dataset to evaluate.
-        model           : The model to evaluate.
-        iou_threshold   : The threshold used to consider when a detection is positive or negative.
-        score_threshold : The score confidence threshold to use for detections.
-        max_detections  : The maximum number of detections to use per image.
-        save_path       : The path to save images with visualized detections to.
-    # Returns
-        A dict mapping class names to mAP scores.
-    """
     # gather all detections and annotations
-    all_detections     = _get_detections(generator, model, score_threshold=score_threshold, max_detections=max_detections, save_path=save_path)
+    all_detections     = _get_detections(generator, model, score_threshold=score_threshold, max_detections=max_detections, draw_annotation=False, save_path=save_path)
