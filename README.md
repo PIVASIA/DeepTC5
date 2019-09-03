@@ -4,4 +4,4 @@ Model Architecture
 ![Model Architecture](/images/deeptc.png)
 
 Tracking Doksuri tropical cyclone
-![TC Doksuri](https://github.com/viethungluu/DeepTC5/images/doksuri.gif)
+![TC Doksuri](/images/doksuri.gif)
